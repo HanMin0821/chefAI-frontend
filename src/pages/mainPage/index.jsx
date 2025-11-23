@@ -1,6 +1,8 @@
-import { useState } from "react";
-import { FiClock, FiShoppingCart, FiActivity } from "react-icons/fi";
-import api from "../../services/api";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+
+import { FiClock, FiShoppingCart, FiActivity, FiUser } from "react-icons/fi";
+import api from "../../api";
 import "./styles.css";
 
 function Card({ children, title }) {
@@ -13,10 +15,33 @@ function Card({ children, title }) {
 }
 
 function MainPage() {
+    const navigate = useNavigate();
     const [ingredients, setIngredients] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [recipe, setRecipe] = useState(null);
+    const [user, setUser] = useState(null);
+
+
+    const [showDropdown, setShowDropdown] = useState(false);
+
+    useEffect(() => {
+        const checkSession = async () => {
+            try {
+                const response = await api.get("/api/check_session");
+                if (response.data.logged_in) {
+                    setUser(response.data);
+                } else {
+                    console.log("Session check returned logged_in: false");
+                    navigate("/welcome");
+                }
+            } catch (e) {
+                console.error("Session check failed with error:", e);
+                navigate("/welcome");
+            }
+        };
+        checkSession();
+    }, [navigate]);
 
     async function handleGenerate() {
         setError(null);
@@ -26,23 +51,20 @@ function MainPage() {
         }
         setLoading(true);
         try {
-            // Try the spec endpoint first, fall back to existing API path
             let resp;
             try {
-                resp = await api.post("/recipe/generate", { ingredients });
+                resp = await api.post("/generate_recipe", { ingredients });
             } catch (e) {
-                resp = await api.post("/api/generate_recipe", { ingredients });
+                throw e;
             }
             const r = resp.data;
             setRecipe(r);
 
-            // If nutrition missing, request a quick estimate
             if (!r.nutrition || Object.keys(r.nutrition).length === 0) {
                 try {
                     const nut = await api.post('/nutrition/calculate', { ingredients: r.ingredients || ingredients, servings: r.servings || 1 });
-                    setRecipe(prev => ({...prev, nutrition: nut.data.nutrition}));
+                    setRecipe(prev => ({ ...prev, nutrition: nut.data.nutrition }));
                 } catch (e) {
-                    // ignore nutrition failure for now
                     console.warn('Nutrition estimate failed', e);
                 }
             }
@@ -69,7 +91,7 @@ function MainPage() {
     async function handleExportPdf() {
         if (!recipe) return;
         try {
-            const resp = await api.post("/api/export_pdf", recipe, { responseType: "blob" });
+            const resp = await api.post("/export_pdf", recipe, { responseType: "blob" });
             const url = window.URL.createObjectURL(new Blob([resp.data], { type: "application/pdf" }));
             const link = document.createElement("a");
             link.href = url;
@@ -83,11 +105,88 @@ function MainPage() {
         }
     }
 
+    async function handleLogout() {
+        try {
+            await api.post("/api/logout");
+            navigate("/welcome");
+        } catch (e) {
+            console.error("Logout failed", e);
+        }
+    }
+
+
+    function handleViewHistory() {
+        navigate("/history");
+        setShowDropdown(false);
+    }
+
     return (
         <div className="main-container">
             <div className="left">
-                <h1 className="app-title">ChefAI — Quick Recipe Generator</h1>
-                <p className="subtitle">Enter ingredients you have and get a recipe, shopping list, and nutrition estimate.</p>
+                <div className="header-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                        <h1 className="app-title">ChefAI — Quick Recipe Generator</h1>
+                        {user && <p className="subtitle" style={{ marginTop: '0.2rem' }}>Welcome, {user.username}!</p>}
+                    </div>
+
+
+                    <div style={{ position: 'relative' }}>
+
+                        <div
+                            onClick={() => setShowDropdown(!showDropdown)}
+                            style={{
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                padding: '8px',
+                                borderRadius: '50%',
+                                backgroundColor: '#f0f0f0',
+                                transition: 'background 0.2s'
+                            }}
+                            title="User Menu"
+                        >
+                            <FiUser size={24} color="#333" />
+                        </div>
+
+
+                        {showDropdown && (
+                            <div style={{
+                                position: 'absolute',
+                                top: '110%',
+                                right: 0,
+                                backgroundColor: 'white',
+                                boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                                borderRadius: '8px',
+                                padding: '8px 0',
+                                minWidth: '150px',
+                                zIndex: 1000,
+                                border: '1px solid #eee'
+                            }}>
+                                <div
+                                    onClick={handleViewHistory}
+                                    className="dropdown-item"
+                                    style={{ padding: '10px 16px', cursor: 'pointer', fontSize: '14px', color: '#333' }}
+                                    onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#f9f9f9'}
+                                    onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'white'}
+                                >
+                                    View History
+                                </div>
+                                <div
+                                    onClick={handleLogout}
+                                    className="dropdown-item"
+                                    style={{ padding: '10px 16px', cursor: 'pointer', fontSize: '14px', color: '#d9534f' }}
+                                    onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#f9f9f9'}
+                                    onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'white'}
+                                >
+                                    Log Out
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                </div>
+
+                {!user && <p className="subtitle">Enter ingredients you have and get a recipe, shopping list, and nutrition estimate.</p>}
 
                 <div className="input-group">
                     <input
@@ -106,7 +205,7 @@ function MainPage() {
                 {recipe && (
                     <div className="actions-row">
                         <button className="secondary-btn" onClick={handleExportPdf}>Export PDF</button>
-                        <button className="secondary-btn" onClick={handleRecalcNutrition} style={{marginLeft: '0.5rem'}}>Recalculate Nutrition</button>
+                        <button className="secondary-btn" onClick={handleRecalcNutrition} style={{ marginLeft: '0.5rem' }}>Recalculate Nutrition</button>
                     </div>
                 )}
             </div>

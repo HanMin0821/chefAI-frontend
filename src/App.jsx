@@ -15,7 +15,7 @@ function App() {
         <Route path="/sign_up" element={<SignUp />} />
         <Route path="/sign_in" element={<SignIn />} />
         <Route path="/main_page" element={<MainPage />} />
-        <Route path="/history_page" element={<HistoryPage />} />
+        <Route path="/history" element={<HistoryPage />} />
       </Routes>
     </Router>
   );
