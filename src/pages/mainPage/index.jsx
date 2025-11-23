@@ -51,12 +51,7 @@ function MainPage() {
         }
         setLoading(true);
         try {
-            let resp;
-            try {
-                resp = await api.post("/generate_recipe", { ingredients });
-            } catch (e) {
-                throw e;
-            }
+            let resp = await api.post("/api/generate_recipe", { ingredients });
             const r = resp.data;
             setRecipe(r);
 
@@ -91,7 +86,7 @@ function MainPage() {
     async function handleExportPdf() {
         if (!recipe) return;
         try {
-            const resp = await api.post("/export_pdf", recipe, { responseType: "blob" });
+            const resp = await api.post("/api/export_pdf", recipe, { responseType: "blob" });
             const url = window.URL.createObjectURL(new Blob([resp.data], { type: "application/pdf" }));
             const link = document.createElement("a");
             link.href = url;
