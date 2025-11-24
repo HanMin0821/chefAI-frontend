@@ -1,10 +1,9 @@
 import axios from 'axios';
 
-// Use 127.0.0.1:5001 by default to match backend running on port 5001.
-const baseURL = 'http://127.0.0.1:5001';
-
+// Use relative requests so the dev server proxy (`/api`) forwards to backend.
+// This lets the browser treat requests as same-origin and makes cookies/sessions work
+// without cross-site SameSite issues in development.
 const api = axios.create({
-    baseURL,
     withCredentials: true,
     headers: {
         'Content-Type': 'application/json',
