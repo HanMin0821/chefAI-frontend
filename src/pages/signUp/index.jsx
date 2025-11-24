@@ -25,35 +25,38 @@ function SignUp() {
     };
 
     return (
-        <div style={{ padding: '20px' }}>
+        <div style={{ padding: '20px' , maxWidth: '400px', margin: '0 auto' }}>
             <h2>Sign Up</h2>
             {error && <p style={{ color: 'red' }}>{error}</p>}
             <form onSubmit={handleSignUp}>
-                <div style={{ marginBottom: '10px' }}>
-                    <label>Username: </label>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+                    <label style={{ width: '100px', textAlign: 'right'}}>Username:</label>
                     <input
                         type="text"
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
                         required
+                        style={{ flex: 1 }}
                     />
                 </div>
-                <div style={{ marginBottom: '10px' }}>
-                    <label>Email: </label>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+                    <label style={{ width: '100px', textAlign: 'right'}}>Email:</label>
                     <input
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
+                        style={{ flex: 1 }}
                     />
                 </div>
-                <div style={{ marginBottom: '10px' }}>
-                    <label>Password: </label>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+                    <label style={{ width: '100px', textAlign: 'right'}}>Password:</label>
                     <input
                         type="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
+                        style={{ flex: 1 }}
                     />
                 </div>
                 <button type="submit">Sign Up</button>

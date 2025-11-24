@@ -181,8 +181,6 @@ function MainPage() {
 
                 </div>
 
-                {!user && <p className="subtitle">Enter ingredients you have and get a recipe, shopping list, and nutrition estimate.</p>}
-
                 <div className="input-group">
                     <input
                         value={ingredients}
