@@ -12,7 +12,8 @@ function SignUp() {
     const handleSignUp = async (e) => {
         e.preventDefault();
         try {
-            const response = await api.post('/signup', { username, email, password });
+            // Backend signup endpoint is `/api/signup` in the Flask app
+            const response = await api.post('/api/signup', { username, email, password });
             if (response.status === 201) {
                 alert('Registration successful! Please login.');
                 navigate('/sign_in');
