@@ -16,56 +16,52 @@ function Card({ children, title }) {
 
 function MainPage() {
     const navigate = useNavigate();
+
     const [ingredients, setIngredients] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [recipe, setRecipe] = useState(null);
+
     const [user, setUser] = useState(null);
-
-
     const [showDropdown, setShowDropdown] = useState(false);
 
     useEffect(() => {
-        const checkSession = async () => {
-            try {
-                const response = await api.get("/api/check_session");
-                if (response.data.logged_in) {
-                    setUser(response.data);
-                } else {
-                    console.log("Session check returned logged_in: false");
-                    navigate("/welcome");
-                }
-            } catch (e) {
-                console.error("Session check failed with error:", e);
-                navigate("/welcome");
-            }
-        };
-        checkSession();
+        const storedUser = localStorage.getItem("user");
+        const storedToken = localStorage.getItem("token");
+
+        if (!storedToken) {
+            navigate("/welcome");
+            return;
+        }
+
+        if (storedUser) {
+            setUser(JSON.parse(storedUser));
+        } else {
+            // fallback: 如果未来你想从服务器获取用户数据，也可以在这里写
+            navigate("/welcome");
+        }
     }, [navigate]);
 
     async function handleGenerate() {
         setError(null);
+
         if (!ingredients.trim()) {
             setError("Please enter at least one ingredient.");
             return;
         }
+
         setLoading(true);
         try {
-            let resp = await api.post("/api/generate_recipe", { ingredients });
-            const r = resp.data;
+            const resp = await api.post("/api/generate_recipe", { ingredients });
+            const r = resp.data.data;
             setRecipe(r);
 
-            if (!r.nutrition || Object.keys(r.nutrition).length === 0) {
-                try {
-                    const nut = await api.post('/nutrition/calculate', { ingredients: r.ingredients || ingredients, servings: r.servings || 1 });
-                    setRecipe(prev => ({ ...prev, nutrition: nut.data.nutrition }));
-                } catch (e) {
-                    console.warn('Nutrition estimate failed', e);
-                }
-            }
         } catch (e) {
-            console.error(e);
-            setError(e?.response?.data?.error || "Failed to generate recipe");
+            if (e.response?.status === 401) {
+                navigate("/welcome");
+                return;
+            }
+            setError(e?.response?.data?.message || "Failed to generate recipe");
         } finally {
             setLoading(false);
         }
@@ -75,11 +71,14 @@ function MainPage() {
         if (!recipe) return;
         setError(null);
         try {
-            const nut = await api.post('/nutrition/calculate', { ingredients: recipe.ingredients || ingredients, servings: recipe.servings || 1 });
-            setRecipe(prev => ({ ...prev, nutrition: nut.data.nutrition }));
+            const nut = await api.post("/api/calculate_nutrition", { 
+                ingredients: recipe.ingredients || ingredients, 
+                servings: recipe.servings || 1 
+            });
+            setRecipe(prev => ({ ...prev, nutrition: nut.data.data.nutrition }));
         } catch (e) {
             console.error(e);
-            setError('Failed to calculate nutrition');
+            setError("Failed to calculate nutrition");
         }
     }
 
@@ -91,9 +90,7 @@ function MainPage() {
             const link = document.createElement("a");
             link.href = url;
             link.setAttribute("download", `${recipe.title || 'recipe'}.pdf`);
-            document.body.appendChild(link);
             link.click();
-            link.parentNode.removeChild(link);
         } catch (e) {
             console.error(e);
             setError("Failed to export PDF");
@@ -101,14 +98,10 @@ function MainPage() {
     }
 
     async function handleLogout() {
-        try {
-            await api.post("/api/logout");
-            navigate("/welcome");
-        } catch (e) {
-            console.error("Logout failed", e);
-        }
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        navigate("/welcome");
     }
-
 
     function handleViewHistory() {
         navigate("/history");

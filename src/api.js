@@ -1,13 +1,19 @@
-import axios from 'axios';
+import axios from "axios";
 
-// Use relative requests so the dev server proxy (`/api`) forwards to backend.
-// This lets the browser treat requests as same-origin and makes cookies/sessions work
-// without cross-site SameSite issues in development.
 const api = axios.create({
-    withCredentials: true,
+    baseURL: "http://127.0.0.1:5000",
     headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
     },
+});
+
+// Attach token to every request if present
+api.interceptors.request.use((config) => {
+    const token = localStorage.getItem("token");
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
 });
 
 export default api;

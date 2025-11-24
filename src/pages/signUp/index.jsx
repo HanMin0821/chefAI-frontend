@@ -11,16 +11,28 @@ function SignUp() {
 
     const handleSignUp = async (e) => {
         e.preventDefault();
+        setError("");
+
         try {
-            // Backend signup endpoint is `/api/signup` in the Flask app
-            const response = await api.post('/api/signup', { username, email, password });
-            if (response.status === 201) {
-                alert('Registration successful! Please login.');
-                navigate('/sign_in');
+            const response = await api.post("/api/signup", {
+                username,
+                email,
+                password,
+            });
+
+            if (response.data.success) {
+                // 保存 token 和 user
+                localStorage.setItem("token", response.data.data.token);
+                localStorage.setItem("user", JSON.stringify(response.data.data.user));
+
+                alert("Registration successful!");
+                navigate("/main_page");
+            } else {
+                setError(response.data.message || "Registration failed");
             }
         } catch (err) {
-            console.error('Signup failed:', err);
-            setError(err.response?.data?.error || 'Registration failed');
+            console.error("Signup failed:", err);
+            setError(err.response?.data?.message || "Registration failed");
         }
     };
 
