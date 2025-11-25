@@ -51,22 +51,6 @@ function MainPage() {
       }
 
       let r = resp.data.data;
-
-      // nutrition fallback，如果后端 / AI 没给 nutrition，就自己算
-      if (!r.nutrition || Object.keys(r.nutrition).length === 0) {
-        try {
-          const nut = await api.post("/api/calculate_nutrition", {
-            ingredients: r.ingredients || ingredients,
-            servings: r.servings || 1,
-          });
-          if (nut.data?.success) {
-            r.nutrition = nut.data.data.nutrition;
-          }
-        } catch {
-          console.warn("Nutrition fallback failed");
-        }
-      }
-
       setRecipe(r);
     } catch {
       setError("Failed to generate recipe");
@@ -91,33 +75,6 @@ function MainPage() {
       link.remove();
     } catch {
       setError("Failed to export PDF");
-    }
-  }
-
-  async function handleRecalculateNutrition() {
-    if (!recipe) return;
-    setRecalcLoading(true);
-    try {
-      const resp = await api.post("/api/calculate_nutrition", {
-        ingredients: recipe.ingredients || ingredients,
-        servings: recipe.servings || 1,
-      });
-      if (resp.data?.success) {
-        setRecipe((prev) =>
-          prev
-            ? {
-                ...prev,
-                nutrition: resp.data.data.nutrition,
-              }
-            : prev
-        );
-      } else {
-        setError(resp.data?.message || "Failed to recalculate nutrition");
-      }
-    } catch {
-      setError("Failed to recalculate nutrition");
-    } finally {
-      setRecalcLoading(false);
     }
   }
 
@@ -188,14 +145,6 @@ function MainPage() {
                       type="button"
                     >
                       Download PDF
-                    </button>
-                    <button
-                      className="secondary-btn outline-btn"
-                      type="button"
-                      onClick={handleRecalculateNutrition}
-                      disabled={recalcLoading}
-                    >
-                      {recalcLoading ? "Recalculating..." : "Recalculate Nutrition"}
                     </button>
                   </div>
                 </div>

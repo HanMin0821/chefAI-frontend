@@ -77,30 +77,6 @@ function HistoryPage() {
     }
   };
 
-  const handleRecalculateNutrition = async () => {
-    if (!parsedSelected) return;
-    setRecalcLoading(true);
-    try {
-      const resp = await api.post("/api/calculate_nutrition", {
-        ingredients: parsedSelected.ingredients,
-        servings: parsedSelected.servings || 1,
-      });
-      if (resp.data?.success) {
-        const nutrition = resp.data.data.nutrition;
-        setRecipes((prev) =>
-          prev.map((r) => (r.id === parsedSelected.id ? { ...r, nutrition } : r))
-        );
-        setSelected((prev) => (prev ? { ...prev, nutrition } : prev));
-      } else {
-        setError(resp.data?.message || "Failed to recalculate nutrition");
-      }
-    } catch {
-      setError("Failed to recalculate nutrition");
-    } finally {
-      setRecalcLoading(false);
-    }
-  };
-
   return (
     <div className="page-shell">
       <Header />
@@ -163,14 +139,6 @@ function HistoryPage() {
                   <div className="card-actions">
                     <button className="secondary-btn ghost-btn" type="button" onClick={handleDownloadPdf}>
                       Download PDF
-                    </button>
-                    <button
-                      className="secondary-btn outline-btn"
-                      type="button"
-                      onClick={handleRecalculateNutrition}
-                      disabled={recalcLoading}
-                    >
-                      {recalcLoading ? "Recalculating..." : "Recalculate Nutrition"}
                     </button>
                   </div>
                 </div>
