@@ -1,4 +1,3 @@
-// src/pages/mainPage/index.jsx
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../../components/Header";
@@ -27,7 +26,7 @@ function MainPage() {
         const u = JSON.parse(userStr);
         if (u?.username) setUsername(u.username);
       } catch {
-        // ignore
+
       }
     }
   }, [navigate]);

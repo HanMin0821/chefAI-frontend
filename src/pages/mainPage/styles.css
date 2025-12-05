@@ -10,7 +10,7 @@
   padding: 2rem 0 0;
 }
 
-/* title + subtitle */
+
 .app-title {
   font-size: 2rem;
   margin-bottom: 0.3rem;
@@ -211,7 +211,6 @@
   font-weight: 500;
 }
 
-/* 响应式 */
 @media (max-width: 900px) {
   .main-container {
     width: 100%;

@@ -1,5 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
+import './index.css';
 
 function Welcome() {
     const navigate = useNavigate();
@@ -13,15 +14,16 @@ function Welcome() {
     }, [navigate]);
 
     return (
-        <div style={{ textAlign: 'center', padding: '50px' }}>
+        <div className="welcome-page">
             <h1>Welcome to ChefAI</h1>
             <p>Your smart recipe generator.</p>
-            <div style={{ marginTop: '30px' }}>
+
+            <div>
                 <Link to="/sign_in">
-                    <button style={{ marginRight: '20px', padding: '10px 20px' }}>Sign In</button>
+                    <button className="welcome-btn btn-white">Sign In</button>
                 </Link>
                 <Link to="/sign_up">
-                    <button style={{ padding: '10px 20px' }}>Sign Up</button>
+                    <button className="welcome-btn btn-purple">Sign Up</button>
                 </Link>
             </div>
         </div>

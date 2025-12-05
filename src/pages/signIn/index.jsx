@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../../api';
+import './index.css';
 
 function SignIn() {
     const [username, setUsername] = useState('');
@@ -29,35 +30,45 @@ function SignIn() {
     };
 
     return (
-        <div style={{ padding: '20px', maxWidth: '400px', margin: '0 auto' }}>
-            <h2>Sign In</h2>
-            {error && <p style={{ color: 'red' }}>{error}</p>}
-            <form onSubmit={handleLogin}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
-                    <label style={{ width: '100px', textAlign: 'right' }}>Username:</label>
-                    <input
-                        type="text"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                        required
-                        style={{ flex: 1 }}
-                    />
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
-                    <label style={{ width: '100px', textAlign: 'right' }}>Password:</label>
-                    <input
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                        style={{ flex: 1 }}
-                    />
-                </div>
-                <button type="submit">Login</button>
-            </form>
-            <p>
-                Don&apos;t have an account? <Link to="/sign_up">Sign Up</Link>
-            </p>
+        <div className="auth-page">
+            <div className="auth-card">
+                <h2 className="auth-title">Sign In</h2>
+
+                {error && <div className="error-msg">{error}</div>}
+
+                <form onSubmit={handleLogin}>
+                    <div className="form-group">
+                        <label className="form-label">Username</label>
+                        <input
+                            type="text"
+                            className="form-input"
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
+                            required
+                            placeholder="Enter your username"
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <label className="form-label">Password</label>
+                        <input
+                            type="password"
+                            className="form-input"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                            placeholder="Enter your password"
+                        />
+                    </div>
+
+                    <button type="submit" className="submit-btn">Login</button>
+                </form>
+
+                <p className="auth-footer">
+                    Don&apos;t have an account?
+                    <Link to="/sign_up" className="link-text">Sign Up</Link>
+                </p>
+            </div>
         </div>
     );
 }

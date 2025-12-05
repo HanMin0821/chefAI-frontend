@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../../api';
+import './index.css';
 
 function SignUp() {
     const [username, setUsername] = useState('');
@@ -21,7 +22,6 @@ function SignUp() {
             });
 
             if (response.data.success) {
-                // 保存 token 和 user
                 localStorage.setItem("token", response.data.data.token);
                 localStorage.setItem("user", JSON.stringify(response.data.data.user));
 
@@ -37,45 +37,57 @@ function SignUp() {
     };
 
     return (
-        <div style={{ padding: '20px' , maxWidth: '400px', margin: '0 auto' }}>
-            <h2>Sign Up</h2>
-            {error && <p style={{ color: 'red' }}>{error}</p>}
-            <form onSubmit={handleSignUp}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
-                    <label style={{ width: '100px', textAlign: 'right'}}>Username:</label>
-                    <input
-                        type="text"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                        required
-                        style={{ flex: 1 }}
-                    />
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
-                    <label style={{ width: '100px', textAlign: 'right'}}>Email:</label>
-                    <input
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                        style={{ flex: 1 }}
-                    />
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
-                    <label style={{ width: '100px', textAlign: 'right'}}>Password:</label>
-                    <input
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                        style={{ flex: 1 }}
-                    />
-                </div>
-                <button type="submit">Sign Up</button>
-            </form>
-            <p>
-                Already have an account? <Link to="/sign_in">Sign In</Link>
-            </p>
+        <div className="auth-wrapper">
+            <div className="auth-card">
+                <h2>Sign Up</h2>
+
+                {error && <div className="error-msg">{error}</div>}
+
+                <form onSubmit={handleSignUp}>
+                    <div className="form-group">
+                        <label className="form-label">Username</label>
+                        <input
+                            type="text"
+                            className="form-input"
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
+                            required
+                            placeholder="Enter your username"
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <label className="form-label">Email</label>
+                        <input
+                            type="email"
+                            className="form-input"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                            placeholder="name@example.com"
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <label className="form-label">Password</label>
+                        <input
+                            type="password"
+                            className="form-input"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                            placeholder="••••••••"
+                        />
+                    </div>
+
+                    <button type="submit" className="submit-btn">Sign Up</button>
+                </form>
+
+                <p className="auth-footer">
+                    Already have an account?
+                    <Link to="/sign_in" className="auth-link">Sign In</Link>
+                </p>
+            </div>
         </div>
     );
 }
