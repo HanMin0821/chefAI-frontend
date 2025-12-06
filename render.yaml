@@ -1,0 +1,13 @@
+services:
+  # Frontend React App
+  - type: web
+    name: chefai-frontend
+    env: node
+    buildCommand: npm install && npm run build
+    startCommand: npm run preview
+    envVars:
+      - key: VITE_API_URL
+        sync: false
+      - key: NODE_VERSION
+        value: 22.14.0
+
