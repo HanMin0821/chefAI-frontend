@@ -2,6 +2,7 @@ services:
   # Frontend React App
   - type: web
     name: chefai-frontend
+    plan: free
     env: node
     buildCommand: npm install && npm run build
     startCommand: npm run preview
